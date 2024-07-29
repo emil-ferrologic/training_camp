@@ -1,6 +1,6 @@
 # Import python packages
 import streamlit as st
-from snowflake.connector.pandas_tools import write_pandas
+#from snowflake.connector.pandas_tools import write_pandas
 from snowflake.connector import connect
 #from snowflake.snowpark.context import get_active_session
 
