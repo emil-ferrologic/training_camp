@@ -105,58 +105,7 @@ def main():
 
     df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Allergi/Diet', 'Transport'])
     edited_df = st.data_editor(df, disabled=['Åldersgrupp', 'Transport'])
-    # print(st.session_state)
 
-    # if "part" not in st.session_state:
-    #     # st.write("Vote for your favorite")
-    #     if st.button('Lägg till deltagare'):
-    #         vote(signup_ID)
-    # else:
-
-    #     f"You voted for {st.session_state.part}"
-
-    # st.dialog('Lägg till deltagare')
-    #     person = 1
-    #     name_1 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
-    #     agegroup1 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
-    #     diet_1 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
-    #     transport_1 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
-    #     st.write("---------------------------------------------")
-
-    # person = 2
-    # name_2 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
-    # agegroup_2 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
-    # diet_2 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
-    # transport_2 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
-    # st.write("---------------------------------------------")
-
-    # person = 3
-    # name_3 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
-    # agegroup_3 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
-    # diet_3 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
-    # transport_3 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
-    # st.write("---------------------------------------------")
-
-    # person = 4
-    # name_4 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
-    # agegroup_4 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
-    # diet_4 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
-    # transport_4 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
-    # st.write("---------------------------------------------")
-
-    # person = 5
-    # name_5 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
-    # agegroup_5 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
-    # diet_5 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
-    # transport_5 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
-    # st.write("---------------------------------------------")
-
-    # person = 6
-    # name_6 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
-    # agegroup6 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
-    # diet_6 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
-    # transport_6 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
-    # st.write("---------------------------------------------")
 
 
 
