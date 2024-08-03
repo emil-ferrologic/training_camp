@@ -1,92 +1,165 @@
 # Import python packages
 import streamlit as st
+import pandas as pd
 #from snowflake.connector.pandas_tools import write_pandas
 #from snowflake.connector import connect
 #from snowflake.snowpark.context import get_active_session
 
-print(DB_USER)
-
 def main():
-    st.image("https://www.skogsluffarna.se/skin/default/header/logotype.png?t=1722253244")
-    # Write directly to the app
-    st.title("Anmälan till Skogsluffarnas Träningsläger i Orsa 2025")
-    st.write("Ange namn, epost och telefon till ansvarig för anmälan")
-    resp_name = st.text_input("Namn" )
-    resp_mail = st.text_input("E-post")
-    resp_telefon = st.text_input("Telefon")
-    st.write("---------------------------------------------")
-    sharing = st.text_input("Vi önskar dela stuga med:")
-    st.write("---------------------------------------------")
-    trainer = st.radio(f"Kan någon/några i sällskapet ställa upp som tränare/ledare för någon träningsgrupp?", ["Ja, som  huvudtränare", "Ja, som hjälptränare", "Nej tack"], horizontal=True,)
-    st.write("---------------------------------------------")
-    misc = st.text_area("Övrig information som kan vara bra att veta om")
+    conn = st.connection("snowflake")
 
-    st.write("---------------------------------------------")
-    # Get the current credentials
-    #SSsession = get_active_session()
-
-    #option = st.selectbox(
-    #    "Antal personer att anmäla",
-    #    ("1","2","3","4","5","6","7"),
-    #)
-    #st.write("You selected:", option)
+    cursor = conn.raw_connection.cursor()
+    # df = conn.query('SELECT * from "TEST";', ttl=600)
+    # print(df)
 
 
-    person = 1
-    name_1 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
-    agegroup1 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
-    diet_1 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
-    transport_1 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
-    st.write("---------------------------------------------")
+    # Load the table as a dataframe using the Snowpark Session.
+    # @st.cache_data
+    # def load_table():
+    #     session = conn.session()
+    #     return session.table("TEST").to_pandas()
 
-    person = 2
-    name_2 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
-    agegroup_2 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
-    diet_2 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
-    transport_2 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
-    st.write("---------------------------------------------")
+    # df = load_table()
 
-    person = 3
-    name_3 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
-    agegroup_3 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
-    diet_3 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
-    transport_3 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
-    st.write("---------------------------------------------")
+    # # Print results.
+    # for row in df.itertuples():
+    #     st.write(f"{row.ID} has a :{row.TEXT}:")
+    if "signup_ID" not in st.session_state:
+        st.session_state.signup_ID = 0
+    if "part" not in st.session_state:
+        st.session_state.part = []
+    if "all_parts" not in st.session_state:
+        st.session_state.all_parts = []
+    if "rc" not in st.session_state:
+        st.session_state.rc = 0
 
-    person = 4
-    name_4 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
-    agegroup_4 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
-    diet_4 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
-    transport_4 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
-    st.write("---------------------------------------------")
+    st.image("https://www.skogsluffarna.se/skin/default/header/logotype.png?t=1722515192",width=120)
 
-    person = 5
-    name_5 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
-    agegroup_5 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
-    diet_5 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
-    transport_5 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
-    st.write("---------------------------------------------")
+    with st.form("update_report"):
+        # Write directly to the app
+        st.title("Anmälan till Skogsluffarnas Träningsläger i Orsa 2025")
+        st.write("Ange namn, epost och telefon till ansvarig för anmälan")
+        resp_name = st.text_input("Namn" )
+        resp_mail = st.text_input("E-post")
+        resp_telefon = st.text_input("Telefon")
+        st.write("---------------------------------------------")
+        sharing = st.text_input("Vi önskar dela stuga med:")
+        st.write("---------------------------------------------")
+        # trainer = st.radio(f"Kan någon/några i sällskapet ställa upp som tränare/ledare för någon träningsgrupp?", ["Ja, som  huvudtränare", "Ja, som hjälptränare", "Nej tack"], horizontal=True,)
+        st.write(f"Kan någon/några i sällskapet ställa upp som tränare/ledare för någon träningsgrupp?")
+        trainer_1 = [ st.checkbox("Ja, som  huvudtränare" ), st.checkbox("Ja, som hjälptränare" ), st.checkbox("Nej tack")]
+        # print(str(trainer_1))
+        # chk = st.checkbox("Ja, som hjälptränare" )
+        # chk = st.checkbox("Nej tack")
+        st.write("---------------------------------------------")
+        misc = st.text_area("Övrig information som kan vara bra att veta om")
 
-    person = 6
-    name_6 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
-    agegroup6 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
-    diet_6 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
-    transport_6 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
-    st.write("---------------------------------------------")
+        st.write("---------------------------------------------")
+        
+        sub_comment = st.form_submit_button('Submit')
+    
+    if sub_comment:
+        sql_insert  = f"""insert into signup  
+                (resp_name,
+                resp_mail,
+                resp_telefon,
+                sharing,
+                trainer,
+                misc)
+                values (
+                '{resp_name}',
+                '{resp_mail}',
+                '{resp_telefon}',
+                '{sharing}',
+                '{trainer}',
+                '{misc}'
+                )"""
+        
+        cursor.execute(sql_insert)
+        sql_stmt = f"""SELECT max(signup_ID) as signup_ID  from signup where 
+            resp_name = '{resp_name}' and 
+            resp_mail = '{resp_mail}' and
+            resp_telefon = '{resp_telefon}'
+        ; """
+        st.session_state.signup_ID = conn.query(sql_stmt, ttl=600).values.tolist()[0][0]
+        # print(signup_ID[0][0])
+    st.write(st.session_state.signup_ID)
+
+    # st.session_state.all_parts = []
+    @st.dialog("Lägg till deltagare")
+    def vote(item):
+        st.write(item)
+        name = st.text_input(f"Namn", "Förnamn och Efternamn")
+        agegroup = st.radio(f"Ange åldersgrupp", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
+        diet = st.text_input(f"Ange ev diet eller allergier", "")
+        transport = st.selectbox(f"Önskad transport till Orsa",("Tidig buss","Sen buss","Egen Bil"))
+
+        if st.button("Lägg till"):
+            st.session_state.all_parts.append([name, agegroup, diet, transport])
+            st.rerun()
+    
+    if st.button('Lägg till deltagare'):
+        vote(st.session_state.signup_ID)
+        
+    st.write(st.session_state)
+
+    df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Allergi/Diet', 'Transport'])
+    edited_df = st.data_editor(df, disabled=['Åldersgrupp', 'Transport'])
+    # print(st.session_state)
+
+    # if "part" not in st.session_state:
+    #     # st.write("Vote for your favorite")
+    #     if st.button('Lägg till deltagare'):
+    #         vote(signup_ID)
+    # else:
+
+    #     f"You voted for {st.session_state.part}"
+
+    # st.dialog('Lägg till deltagare')
+    #     person = 1
+    #     name_1 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
+    #     agegroup1 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
+    #     diet_1 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
+    #     transport_1 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
+    #     st.write("---------------------------------------------")
+
+    # person = 2
+    # name_2 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
+    # agegroup_2 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
+    # diet_2 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
+    # transport_2 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
+    # st.write("---------------------------------------------")
+
+    # person = 3
+    # name_3 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
+    # agegroup_3 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
+    # diet_3 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
+    # transport_3 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
+    # st.write("---------------------------------------------")
+
+    # person = 4
+    # name_4 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
+    # agegroup_4 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
+    # diet_4 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
+    # transport_4 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
+    # st.write("---------------------------------------------")
+
+    # person = 5
+    # name_5 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
+    # agegroup_5 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
+    # diet_5 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
+    # transport_5 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
+    # st.write("---------------------------------------------")
+
+    # person = 6
+    # name_6 = st.text_input(f"Namn för person {person}", "Förnamn och Efternamn")
+    # agegroup6 = st.radio(f"Ange åldersgrupp för person {person}", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
+    # diet_6 = st.text_input(f"Ange ev diet eller allergier för person {person}", "")
+    # transport_6 = st.selectbox(f"Önskad transport till Orsa för person {person}",("Tidig buss","Sen buss","Egen Bil"))
+    # st.write("---------------------------------------------")
 
 
-def sflake_connect():
-    conn = connect(
-        user = '',
-        password = '',
-        account = '',
-        database = '',
-        warehouse = '',
-        schema = ''
-    )
-    cursor = conn.cursor()
 
-    return conn, cursor
 
 if __name__ == '__main__':
     main()
