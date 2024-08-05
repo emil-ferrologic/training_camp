@@ -1,114 +1,118 @@
 # Import python packages
 import streamlit as st
 import pandas as pd
-#from snowflake.connector.pandas_tools import write_pandas
-#from snowflake.connector import connect
-#from snowflake.snowpark.context import get_active_session
+from datetime import datetime
 
-def main():
-    conn = st.connection("snowflake")
+st.set_page_config(layout="wide", page_title='Anmälning till Orsa 2025', page_icon="https://www.skogsluffarna.se/skin/default/header/logotype.png?t=1722515192")
 
-    cursor = conn.raw_connection.cursor()
-    # df = conn.query('SELECT * from "TEST";', ttl=600)
-    # print(df)
+conn = st.connection("snowflake")
 
+cursor = conn.raw_connection.cursor()
 
-    # Load the table as a dataframe using the Snowpark Session.
-    # @st.cache_data
-    # def load_table():
-    #     session = conn.session()
-    #     return session.table("TEST").to_pandas()
+def disable():
+    st.session_state.disabled = True
 
-    # df = load_table()
-
-    # # Print results.
-    # for row in df.itertuples():
-    #     st.write(f"{row.ID} has a :{row.TEXT}:")
-    if "signup_ID" not in st.session_state:
-        st.session_state.signup_ID = 0
-    if "part" not in st.session_state:
-        st.session_state.part = []
-    if "all_parts" not in st.session_state:
-        st.session_state.all_parts = []
-    if "rc" not in st.session_state:
+if "signup_ID" not in st.session_state:
+    st.session_state.signup_ID = 0
+if "part" not in st.session_state:
+    st.session_state.part = []
+if "all_parts" not in st.session_state:
+    st.session_state.all_parts = []
+if "rc" not in st.session_state:
         st.session_state.rc = 0
+if "add_part" not in st.session_state:
+    st.session_state.add_part = False
+if "disabled" not in st.session_state:
+    st.session_state.disabled = False
+if "state" not in st.session_state:
+    st.session_state.state = "ongoing"
+if "load_datetime" not in st.session_state:
+    st.session_state.load_datetime = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
-    st.image("https://www.skogsluffarna.se/skin/default/header/logotype.png?t=1722515192",width=120)
+st.image("https://www.skogsluffarna.se/skin/default/header/logotype.png?t=1722515192",width=120)
+
+if st.session_state.state == 'ongoing':
 
     with st.form("update_report"):
         # Write directly to the app
         st.title("Anmälan till Skogsluffarnas Träningsläger i Orsa 2025")
         st.write("Ange namn, epost och telefon till ansvarig för anmälan")
         resp_name = st.text_input("Namn" )
+        st.session_state.resp_name = resp_name
         resp_mail = st.text_input("E-post")
+        st.session_state.resp_mail = resp_mail
         resp_telefon = st.text_input("Telefon")
+        st.session_state.resp_telefon = resp_telefon
         st.write("---------------------------------------------")
         sharing = st.text_input("Vi önskar dela stuga med:")
+        st.session_state.sharing = sharing
         st.write("---------------------------------------------")
-        # trainer = st.radio(f"Kan någon/några i sällskapet ställa upp som tränare/ledare för någon träningsgrupp?", ["Ja, som  huvudtränare", "Ja, som hjälptränare", "Nej tack"], horizontal=True,)
-        st.write(f"Kan någon/några i sällskapet ställa upp som tränare/ledare för någon träningsgrupp?")
-        trainer_1 = [ st.checkbox("Ja, som  huvudtränare" ), st.checkbox("Ja, som hjälptränare" ), st.checkbox("Nej tack")]
-        # print(str(trainer_1))
-        # chk = st.checkbox("Ja, som hjälptränare" )
-        # chk = st.checkbox("Nej tack")
+        misc = st.text_area("Övrig information som kan vara bra att veta om. Allergier och dieter anges per deltagare senare i anmälan.")
+        st.session_state.misc = misc
         st.write("---------------------------------------------")
-        misc = st.text_area("Övrig information som kan vara bra att veta om")
+        sub_comment = st.form_submit_button('Fortsätt, för att lägga till deltagare', on_click=disable, disabled=st.session_state.disabled)
 
-        st.write("---------------------------------------------")
-        
-        sub_comment = st.form_submit_button('Submit')
+        if sub_comment:
+            sql_insert  = f"""insert into signup  
+                    (resp_name, resp_mail, resp_telefon, sharing,  misc, load_datetime) 
+                    values ('{resp_name}', '{resp_mail}', '{resp_telefon}', '{sharing}', '{misc}', '{st.session_state.load_datetime}')""" 
+            cursor.execute(sql_insert)
+            sql_stmt = f"""SELECT max(signup_ID) as signup_ID  from signup where 
+                resp_name = '{resp_name}' and 
+                resp_mail = '{resp_mail}' and
+                resp_telefon = '{resp_telefon}'
+            ; """
+            st.session_state.signup_ID = conn.query(sql_stmt, ttl=600).values.tolist()[0][0]
+            st.session_state.add_part = True
     
-    if sub_comment:
-        sql_insert  = f"""insert into signup  
-                (resp_name,
-                resp_mail,
-                resp_telefon,
-                sharing,
-                trainer,
-                misc)
-                values (
-                '{resp_name}',
-                '{resp_mail}',
-                '{resp_telefon}',
-                '{sharing}',
-                '{trainer}',
-                '{misc}'
-                )"""
-        
-        cursor.execute(sql_insert)
-        sql_stmt = f"""SELECT max(signup_ID) as signup_ID  from signup where 
-            resp_name = '{resp_name}' and 
-            resp_mail = '{resp_mail}' and
-            resp_telefon = '{resp_telefon}'
-        ; """
-        st.session_state.signup_ID = conn.query(sql_stmt, ttl=600).values.tolist()[0][0]
-        # print(signup_ID[0][0])
-    st.write(st.session_state.signup_ID)
-
-    # st.session_state.all_parts = []
     @st.dialog("Lägg till deltagare")
     def vote(item):
         st.write(item)
-        name = st.text_input(f"Namn", "Förnamn och Efternamn")
+        part_name = st.text_input(f"Förnamn och Efternamn", "")
         agegroup = st.radio(f"Ange åldersgrupp", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
-        diet = st.text_input(f"Ange ev diet eller allergier", "")
+        __diet = st.text_input(f"Ange ev diet eller allergier", "")
+        diet = st.multiselect("Ange ev diet eller allergier",["Vegetarian", "Vegan", "Gluten","Laktos", "Nötallergi","Kokosallergi","Mandelallergi","Tomatallergi", "Äter fisk"],)
+        part_diet = [x for x in diet]
         transport = st.selectbox(f"Önskad transport till Orsa",("Tidig buss","Sen buss","Egen Bil"))
+        part_telefon = st.text_input(f"Telefon (frivilligt)", "")
+        part_mail = st.text_input(f"E-post (frivilligt)", "")
+        st.write(f"Kan ställa upp som tränare/ledare för någon träningsgrupp!")
+        trainer = [ st.checkbox("Ja, som  huvudtränare" ), st.checkbox("Ja, som hjälptränare" ), st.checkbox("Nej tack")]
+        trainer_txt = ["Ja, som  huvudtränare" ,"Ja, som hjälptränare" , "Nej tack"]
+        part_trainer = [trainer_txt[idx]  for idx,x in enumerate(trainer) if x == True]
 
         if st.button("Lägg till"):
-            st.session_state.all_parts.append([name, agegroup, diet, transport])
+            st.session_state.all_parts.append([part_name, agegroup, part_diet, transport, part_telefon, part_mail, part_trainer])
             st.rerun()
-    
-    if st.button('Lägg till deltagare'):
-        vote(st.session_state.signup_ID)
-        
-    st.write(st.session_state)
+    if st.session_state.add_part == True:
+        st.write('Registrera alla i sällskapet som ska följa med på träningslägret, även den som angetts som ansvarig.')
+        if st.button('Lägg till deltagare'):
+            vote(st.session_state.signup_ID)
 
-    df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Allergi/Diet', 'Transport'])
-    edited_df = st.data_editor(df, disabled=['Åldersgrupp', 'Transport'])
-
-
-
-
-
-if __name__ == '__main__':
-    main()
+    if st.session_state.all_parts != []:
+        st.write('Deltagare som ska följa med. För/Efternamn och Allegi/Diet går att ändra i tabellen.')
+        df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Tränare'])
+        edited_df = st.data_editor(df, disabled=['Åldersgrupp', 'Transport', 'Tränare'], hide_index=True)
+        df_insert = edited_df
+        df_insert.rename(columns={'För-/Efternamn':'PART_NAME', 'Åldersgrupp':'AGEGROUP','Allergi/Diet':'ALLERGI', 'Transport':'TRANSPORT', 'Telefon':'PHONE','E-post':'MAIL','Tränare':'TRAINER'},inplace=True)
+        df_insert.insert(0, 'SIGNUP_ID', st.session_state.signup_ID)
+        df_insert.insert(5, 'LOAD_DATETIME', st.session_state.load_datetime)
+        print(df_insert)
+        if st.button('Slutför anmälan'):
+            conn.write_pandas(df_insert, table_name='PARTICIPANTS')
+            st.session_state.state = "finished"
+            st.rerun()
+elif st.session_state.state == "finished":
+    st.subheader('Anmälan är mottagen, följande uppgifter har registrerats')
+    st.write(f'Ansvarig för anmälan')
+    st.write(f'   - {st.session_state.resp_name}')
+    st.subheader(f'Kontaktuppgifter till ansvarig för anmälan')
+    st.write(f'   - Telefon: {st.session_state.resp_telefon}')
+    st.write(f'   - E-post: {st.session_state.resp_mail}')
+    st.write(f'Önskar dela stuga med')
+    st.write(f'   - {st.session_state.sharing}')
+    st.write(f'Övrig info {st.session_state.misc}')
+    st.write("---------------------------------------------")
+    st.subheader('Anmälda deltagare')
+    df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Tränare'])
+    st.data_editor(df, disabled=['För-/Efternamn', 'Åldersgrupp','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Tränare'], hide_index=True)
