@@ -97,7 +97,7 @@ if st.session_state.state == 'ongoing':
         df_insert.rename(columns={'För-/Efternamn':'PART_NAME', 'Åldersgrupp':'AGEGROUP','Allergi/Diet':'ALLERGI', 'Transport':'TRANSPORT', 'Telefon':'PHONE','E-post':'MAIL','Tränare':'TRAINER'},inplace=True)
         df_insert.insert(0, 'SIGNUP_ID', st.session_state.signup_ID)
         df_insert.insert(5, 'LOAD_DATETIME', st.session_state.load_datetime)
-        print(df_insert)
+        # print(df_insert)
         if st.button('Slutför anmälan'):
             conn.write_pandas(df_insert, table_name='PARTICIPANTS')
             st.session_state.state = "finished"
