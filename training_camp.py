@@ -67,7 +67,7 @@ if st.session_state.state == 'ongoing':
     
     @st.dialog("Lägg till deltagare")
     def vote(item):
-        st.write(item)
+        # st.write(item)
         part_name = st.text_input(f"Förnamn och Efternamn", "")
         agegroup = st.radio(f"Ange åldersgrupp", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
         __diet = st.text_input(f"Ange ev diet eller allergier", "")
