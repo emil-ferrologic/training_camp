@@ -80,9 +80,10 @@ if st.session_state.state == 'ongoing':
         trainer = [ st.checkbox("Ja, som  huvudtränare" ), st.checkbox("Ja, som hjälptränare" ), st.checkbox("Nej tack")]
         trainer_txt = ["Ja, som  huvudtränare" ,"Ja, som hjälptränare" , "Nej tack"]
         part_trainer = [trainer_txt[idx]  for idx,x in enumerate(trainer) if x == True]
-
+        # st.write()
+        part_bbq_comp = st.text_area('Kan tänka mig att hålla i eller hjälpa till vid aktiviteter som t.ex korvgrillning, lekar efter middag, kexchokladloppet, stugstafetten eller något annat. Skriv en kommentar nedan.')
         if st.button("Lägg till"):
-            st.session_state.all_parts.append([part_name, agegroup, part_diet, transport, part_telefon, part_mail, part_trainer])
+            st.session_state.all_parts.append([part_name, agegroup, part_diet, transport, part_telefon, part_mail, part_trainer,part_bbq_comp])
             st.rerun()
     if st.session_state.add_part == True:
         st.write('Registrera alla i sällskapet som ska följa med på träningslägret, även den som angetts som ansvarig.')
@@ -91,10 +92,10 @@ if st.session_state.state == 'ongoing':
 
     if st.session_state.all_parts != []:
         st.write('Deltagare som ska följa med. För/Efternamn och Allegi/Diet går att ändra i tabellen.')
-        df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Tränare'])
+        df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Tränare', 'Tävlingar mm'])
         edited_df = st.data_editor(df, disabled=['Åldersgrupp', 'Transport', 'Tränare'], hide_index=True)
         df_insert = edited_df
-        df_insert.rename(columns={'För-/Efternamn':'PART_NAME', 'Åldersgrupp':'AGEGROUP','Allergi/Diet':'ALLERGI', 'Transport':'TRANSPORT', 'Telefon':'PHONE','E-post':'MAIL','Tränare':'TRAINER'},inplace=True)
+        df_insert.rename(columns={'För-/Efternamn':'PART_NAME', 'Åldersgrupp':'AGEGROUP','Allergi/Diet':'ALLERGI', 'Transport':'TRANSPORT', 'Telefon':'PHONE','E-post':'MAIL','Tränare':'TRAINER','Tävlingar mm':'BBQ_COMP'},inplace=True)
         df_insert.insert(0, 'SIGNUP_ID', st.session_state.signup_ID)
         df_insert.insert(5, 'LOAD_DATETIME', st.session_state.load_datetime)
         # print(df_insert)
@@ -114,5 +115,5 @@ elif st.session_state.state == "finished":
     st.write(f'Övrig info {st.session_state.misc}')
     st.write("---------------------------------------------")
     st.subheader('Anmälda deltagare')
-    df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Tränare'])
-    st.data_editor(df, disabled=['För-/Efternamn', 'Åldersgrupp','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Tränare'], hide_index=True)
+    df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Tränare', 'Tävlingar mm'])
+    st.data_editor(df, disabled=['För-/Efternamn', 'Åldersgrupp','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Tränare','Tävlingar mm'], hide_index=True)
