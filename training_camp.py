@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 
+
 st.set_page_config(layout="wide", page_title='Anmälning till Orsa 2025', page_icon="https://www.skogsluffarna.se/skin/default/header/logotype.png?t=1722515192")
 
 conn = st.connection("snowflake")
