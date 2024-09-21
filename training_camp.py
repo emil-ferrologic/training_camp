@@ -36,12 +36,13 @@ if st.session_state.state == 'ongoing':
     with st.form("update_report"):
         # Write directly to the app
         st.title("Anmälan till Skogsluffarnas Träningsläger i Orsa 2025")
-        st.write("Ange namn, epost och telefon till ansvarig för anmälan")
+        st.write('Fält markerade med * är obligatoriska.')
+        st.write("Ange namn, epost och telefon till ansvarig för anmälan *")
         resp_name = st.text_input("Namn" )
         st.session_state.resp_name = resp_name
-        resp_mail = st.text_input("E-post")
+        resp_mail = st.text_input("E-post *")
         st.session_state.resp_mail = resp_mail
-        resp_telefon = st.text_input("Telefon")
+        resp_telefon = st.text_input("Telefon *")
         st.session_state.resp_telefon = resp_telefon
         st.write("---------------------------------------------")
         sharing = st.text_input("Vi önskar dela stuga med:")
@@ -68,22 +69,29 @@ if st.session_state.state == 'ongoing':
     @st.dialog("Lägg till deltagare")
     def vote(item):
         # st.write(item)
-        part_name = st.text_input(f"Förnamn och Efternamn", "")
-        agegroup = st.radio(f"Ange åldersgrupp", ["0-6 år", "7-18 år ", "18-64 år", " 65 år eller äldre"], horizontal=True,)
-        __diet = st.text_input(f"Ange ev diet eller allergier", "")
+        part_name = st.text_input(f"Förnamn och Efternamn *", "")
+        agegroup = st.radio(f"Ange åldersgrupp (ålder vid träningslägret) *", ["Till och med gynmnasiet", "18-64 år", "65 år eller äldre"], horizontal=True,)
+        if agegroup =="Till och med gynmnasiet":
+            age = st.text_input(f"Vänligen ange ålder för barnet/ungdomen", "")
+        else:
+            age = None
+        print(age)
+        # __diet = st.text_input(f"Ange ev diet eller allergier", "")
         diet = st.multiselect("Ange ev diet eller allergier",["Vegetarian", "Vegan", "Gluten","Laktos", "Nötallergi","Kokosallergi","Mandelallergi","Tomatallergi", "Äter fisk"],)
         part_diet = [x for x in diet]
-        transport = st.selectbox(f"Önskad transport till Orsa",("Tidig buss","Sen buss","Egen Bil"))
+        transport = st.selectbox(f"Önskad transport till Orsa *",("Tidig buss","Sen buss","Egen Bil"))
         part_telefon = st.text_input(f"Telefon (frivilligt)", "")
         part_mail = st.text_input(f"E-post (frivilligt)", "")
-        st.write(f"Kan ställa upp som tränare/ledare för någon träningsgrupp!")
+        skate = st.radio("Önskar att delta i träningsgrupp med fokus på Skate", ['Ja','Nej','Vet inte/Kanske'], horizontal=True,)
+        st.write(f"Kan ställa upp som tränare/ledare för någon träningsgrupp! (frivilligt)")
         trainer = [ st.checkbox("Ja, som  huvudtränare" ), st.checkbox("Ja, som hjälptränare" ), st.checkbox("Nej tack")]
         trainer_txt = ["Ja, som  huvudtränare" ,"Ja, som hjälptränare" , "Nej tack"]
         part_trainer = [trainer_txt[idx]  for idx,x in enumerate(trainer) if x == True]
         # st.write()
-        part_bbq_comp = st.text_area('Kan tänka mig att hålla i eller hjälpa till vid aktiviteter som t.ex korvgrillning, lekar efter middag, kexchokladloppet, stugstafetten eller något annat. Skriv en kommentar nedan.')
+        part_bbq_comp = st.text_area('Kan tänka mig att hålla i eller hjälpa till vid aktiviteter som t.ex korvgrillning, lekar efter middag, kexchokladloppet, stugstafetten eller något annat. Skriv en kommentar nedan. (frivilligt)')
         if st.button("Lägg till"):
-            st.session_state.all_parts.append([part_name, agegroup, part_diet, transport, part_telefon, part_mail, part_trainer,part_bbq_comp])
+            st.session_state.all_parts.append([part_name, agegroup,age, part_diet, transport, part_telefon, part_mail,skate, part_trainer,part_bbq_comp])
+            print(st.session_state.all_parts)
             st.rerun()
     if st.session_state.add_part == True:
         st.write('Registrera alla i sällskapet som ska följa med på träningslägret, även den som angetts som ansvarig.')
@@ -92,8 +100,8 @@ if st.session_state.state == 'ongoing':
 
     if st.session_state.all_parts != []:
         st.write('Deltagare som ska följa med. För/Efternamn och Allegi/Diet går att ändra i tabellen.')
-        df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Tränare', 'Tävlingar mm'])
-        edited_df = st.data_editor(df, disabled=['Åldersgrupp', 'Transport', 'Tränare'], hide_index=True)
+        df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Ålder','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Skategrupp','Tränare', 'Tävlingar mm'])
+        edited_df = st.data_editor(df, disabled=['Åldersgrupp','Transport','Skategrupp','Tränare'], hide_index=True)#
         df_insert = edited_df
         df_insert.rename(columns={'För-/Efternamn':'PART_NAME', 'Åldersgrupp':'AGEGROUP','Allergi/Diet':'ALLERGI', 'Transport':'TRANSPORT', 'Telefon':'PHONE','E-post':'MAIL','Tränare':'TRAINER','Tävlingar mm':'BBQ_COMP'},inplace=True)
         df_insert.insert(0, 'SIGNUP_ID', st.session_state.signup_ID)
