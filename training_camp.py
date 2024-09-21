@@ -124,5 +124,5 @@ elif st.session_state.state == "finished":
     st.write(f'Övrig info {st.session_state.misc}')
     st.write("---------------------------------------------")
     st.subheader('Anmälda deltagare')
-    df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Tränare', 'Tävlingar mm'])
-    st.data_editor(df, disabled=['För-/Efternamn', 'Åldersgrupp','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Tränare','Tävlingar mm'], hide_index=True)
+    df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Ålder','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Skategrupp','Tränare', 'Tävlingar mm']])
+    st.data_editor(df, disabled=['För-/Efternamn', 'Åldersgrupp','Ålder','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Skategrupp','Tränare', 'Tävlingar mm']], hide_index=True)
