@@ -38,9 +38,13 @@ if st.session_state.state == 'ongoing':
         # Write directly to the app
         st.title("Anmälan till Skogsluffarnas Träningsläger i Orsa 2025")
         st.write('Fält markerade med * är obligatoriska.')
-        st.write("Ange namn, epost och telefon till ansvarig för anmälan *")
+        st.write("Ange namn, adress, epost och telefon till ansvarig för anmälan *")
         resp_name = st.text_input("Namn" )
         st.session_state.resp_name = resp_name
+        
+        resp_adress = st.text_area("Fakturaadresss")
+        st.session_state.resp_adress = resp_adress
+
         resp_mail = st.text_input("E-post *")
         st.session_state.resp_mail = resp_mail
         resp_telefon = st.text_input("Telefon *")
@@ -56,8 +60,8 @@ if st.session_state.state == 'ongoing':
 
         if sub_comment:
             sql_insert  = f"""insert into signup  
-                    (resp_name, resp_mail, resp_telefon, sharing,  misc, load_datetime) 
-                    values ('{resp_name}', '{resp_mail}', '{resp_telefon}', '{sharing}', '{misc}', '{st.session_state.load_datetime}')""" 
+                    (resp_name, resp_name, resp_mail, resp_telefon, sharing,  misc, load_datetime) 
+                    values ('{resp_name}','{resp_adress}', '{resp_mail}', '{resp_telefon}', '{sharing}', '{misc}', '{st.session_state.load_datetime}')""" 
             cursor.execute(sql_insert)
             sql_stmt = f"""SELECT max(signup_ID) as signup_ID  from signup where 
                 resp_name = '{resp_name}' and 
