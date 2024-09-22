@@ -123,6 +123,7 @@ elif st.session_state.state == "finished":
     st.subheader(f'Kontaktuppgifter till ansvarig för anmälan')
     st.write(f'   - Telefon: {st.session_state.resp_telefon}')
     st.write(f'   - E-post: {st.session_state.resp_mail}')
+    st.write(f'   - Adress: {st.session_state.resp_adress}')
     st.write(f'Önskar dela stuga med')
     st.write(f'   - {st.session_state.sharing}')
     st.write(f'Övrig info {st.session_state.misc}')
