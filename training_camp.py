@@ -42,7 +42,7 @@ if st.session_state.state == 'ongoing':
         resp_name = st.text_input("Namn" )
         st.session_state.resp_name = resp_name
         
-        resp_adress = st.text_area("Fakturaadresss")
+        resp_adress = st.text_area("Fakturaadresss *")
         st.session_state.resp_adress = resp_adress
 
         resp_mail = st.text_input("E-post *")
