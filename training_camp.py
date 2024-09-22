@@ -60,7 +60,7 @@ if st.session_state.state == 'ongoing':
 
         if sub_comment:
             sql_insert  = f"""insert into signup  
-                    (resp_name, resp_name, resp_mail, resp_telefon, sharing,  misc, load_datetime) 
+                    (resp_name, resp_adress, resp_mail, resp_telefon, sharing,  misc, load_datetime) 
                     values ('{resp_name}','{resp_adress}', '{resp_mail}', '{resp_telefon}', '{sharing}', '{misc}', '{st.session_state.load_datetime}')""" 
             cursor.execute(sql_insert)
             sql_stmt = f"""SELECT max(signup_ID) as signup_ID  from signup where 
