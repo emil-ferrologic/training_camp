@@ -40,7 +40,7 @@ if st.session_state.state == 'ongoing':
         st.write('OBS! Använd med fördel Chrome på dator.')
         st.write('Fält markerade med * är obligatoriska.')
         st.write("Ange namn, adress, epost och telefon till ansvarig för anmälan *")
-        resp_name = st.text_input("Namn" )
+        resp_name = st.text_input("Namn *" )
         st.session_state.resp_name = resp_name
         
         resp_adress = st.text_area("Fakturaadresss *")
