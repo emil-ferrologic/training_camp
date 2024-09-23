@@ -39,10 +39,12 @@ if st.session_state.state == 'ongoing':
         sql_stmt_no_participanst = f"""SELECT count(*) as antal  from participants;"""
         
         st.session_state.no_of_participants = conn.query(sql_stmt_no_participanst, ttl=600).values.tolist()[0][0]
-        st.write(st.session_state.no_of_participants)
+        # st.write(st.session_state.no_of_participants)
 
         # Write directly to the app
         st.title("Anmälan till Skogsluffarnas Träningsläger i Orsa 2025")
+        if st.session_state.no_of_participants > 100:
+            st.write('Det är begränsat med platser kvar. Vi gör allt för att alla ska komma med. Invänta besked ifall ni är placerade i kön.')
         st.write('OBS! Använd med fördel Chrome på dator.')
         st.write('Fält markerade med * är obligatoriska.')
         st.write("Ange namn, adress, epost och telefon till ansvarig för anmälan *")
