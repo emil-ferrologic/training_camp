@@ -42,6 +42,7 @@ if st.session_state.state == 'ongoing':
         st.write("Ange namn, adress, epost och telefon till ansvarig för anmälan *")
         resp_name = st.text_input("Namn *" )
         st.session_state.resp_name = resp_name
+        print(resp_name)
         
         resp_adress = st.text_area("Fakturaadresss *")
         st.session_state.resp_adress = resp_adress
@@ -81,7 +82,7 @@ if st.session_state.state == 'ongoing':
             age = st.text_input(f"Vänligen ange ålder för barnet/ungdomen", "")
         else:
             age = None
-        print(age)
+        # print(age)
         # __diet = st.text_input(f"Ange ev diet eller allergier", "")
         diet = st.multiselect("Ange ev diet eller allergier",["Vegetarian", "Vegan", "Gluten","Laktos", "Nötallergi","Kokosallergi","Mandelallergi","Tomatallergi", "Äter fisk"],)
         part_diet = [x for x in diet]
@@ -97,7 +98,7 @@ if st.session_state.state == 'ongoing':
         part_bbq_comp = st.text_area('Kan tänka mig att hålla i eller hjälpa till vid aktiviteter som t.ex korvgrillning, lekar efter middag, kexchokladloppet, stugstafetten eller något annat. Skriv en kommentar nedan. (frivilligt)')
         if st.button("Lägg till"):
             st.session_state.all_parts.append([part_name, agegroup,age, part_diet, transport, part_telefon, part_mail,skate, part_trainer,part_bbq_comp])
-            print(st.session_state.all_parts)
+            # print(st.session_state.all_parts)
             st.rerun()
     if st.session_state.add_part == True:
         st.write('Registrera alla i sällskapet som ska följa med på träningslägret, även den som angetts som ansvarig.')
@@ -112,7 +113,7 @@ if st.session_state.state == 'ongoing':
         df_insert.rename(columns={'För-/Efternamn':'PART_NAME', 'Åldersgrupp':'AGEGROUP', 'Ålder':'AGE','Allergi/Diet':'ALLERGI', 'Transport':'TRANSPORT', 'Telefon':'PHONE','E-post':'MAIL','Skategrupp':'SKATE','Tränare':'TRAINER','Tävlingar mm':'BBQ_COMP'},inplace=True)
         df_insert.insert(0, 'SIGNUP_ID', st.session_state.signup_ID)
         df_insert.insert(5, 'LOAD_DATETIME', st.session_state.load_datetime)
-        print(df_insert)
+        # print(df_insert)
         if st.button('Slutför anmälan'):
             conn.write_pandas(df_insert, table_name='PARTICIPANTS')
             st.session_state.state = "finished"
