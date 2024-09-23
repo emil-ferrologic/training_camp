@@ -43,7 +43,7 @@ if st.session_state.state == 'ongoing':
         # resp_telefon = '{resp_telefon}'
         # ; """
         # st.session_state.no_of_participants = conn.query(sql_stmt_no_participanst, ttl=600).values.tolist()[0][0]
-        # print(st.session_state.no_participanst)
+        print("no_participanst")
 
         # Write directly to the app
         st.title("Anmälan till Skogsluffarnas Träningsläger i Orsa 2025")
