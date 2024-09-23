@@ -78,7 +78,7 @@ if st.session_state.state == 'ongoing':
         # st.write(item)
         part_name = st.text_input(f"Förnamn och Efternamn *", "")
         agegroup = st.radio(f"Ange åldersgrupp (ålder vid träningslägret) *", ["Till och med gynmnasiet", "18-64 år", "65 år eller äldre"], horizontal=True,)
-        if agegroup =="Till och med gynmnasiet":
+        if agegroup =="Till och med gymnasiet":
             age = st.text_input(f"Vänligen ange ålder för barnet/ungdomen", "")
         else:
             age = None
