@@ -43,6 +43,7 @@ if st.session_state.state == 'ongoing':
         # resp_telefon = '{resp_telefon}'
         # ; """
         # st.session_state.no_of_participants = conn.query(sql_stmt_no_participanst, ttl=600).values.tolist()[0][0]
+        
         print("no_participanst")
 
         # Write directly to the app
