@@ -37,6 +37,7 @@ if st.session_state.state == 'ongoing':
     with st.form("update_report"):
         # Write directly to the app
         st.title("Anmälan till Skogsluffarnas Träningsläger i Orsa 2025")
+        st.write('OBS! Använd med fördel Chrome på dator.')
         st.write('Fält markerade med * är obligatoriska.')
         st.write("Ange namn, adress, epost och telefon till ansvarig för anmälan *")
         resp_name = st.text_input("Namn" )
