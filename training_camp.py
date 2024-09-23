@@ -36,7 +36,7 @@ if st.session_state.state == 'ongoing':
 
     with st.form("update_report"):
 
-        sql_stmt_no_participanst = f"""SELECT count(*) as antal  from participants""";
+        sql_stmt_no_participanst = f"""SELECT count(*) as antal  from participants;"""
         test = conn.query(sql_stmt_no_participanst, ttl=600).values.tolist()[0][0]
         print(test)
         # st.session_state.no_of_participants = conn.query(sql_stmt_no_participanst, ttl=600).values.tolist()[0][0]
