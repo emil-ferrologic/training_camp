@@ -35,6 +35,16 @@ st.image("https://www.skogsluffarna.se/skin/default/header/logotype.png?t=172251
 if st.session_state.state == 'ongoing':
 
     with st.form("update_report"):
+
+        sql_stmt_no_participanst = f"""SELECT count(*) as antal  from participants""";
+        # where 
+        # resp_name = '{resp_name}' and 
+        # resp_mail = '{resp_mail}' and
+        # resp_telefon = '{resp_telefon}'
+        # ; """
+        st.session_state.no_of_participants = conn.query(sql_stmt_no_participanst, ttl=600).values.tolist()[0][0]
+        print(st.session_state.no_participanst)
+
         # Write directly to the app
         st.title("Anmälan till Skogsluffarnas Träningsläger i Orsa 2025")
         st.write('OBS! Använd med fördel Chrome på dator.')
