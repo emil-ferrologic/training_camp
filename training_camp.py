@@ -56,7 +56,7 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
         
         if st.session_state.no_of_participants > 100:
             st.write('Det är begränsat med platser kvar. Vi gör allt för att alla ska komma med. Invänta besked ifall ni är placerade i kön.')
-        st.write('OBS! Använd med fördel Chrome på dator.')
+        st.write('Använd med fördel Chrome på dator.')
         st.write('Fält markerade med * är obligatoriska.')
         st.write("Ange namn, adress, epost och telefon till ansvarig för anmälan *")
         resp_name = st.text_input("Namn *" )
