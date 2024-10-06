@@ -41,13 +41,19 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
     with st.form("update_report"):
 
         sql_stmt_no_participanst = f"""SELECT count(*) as antal  from participants;"""
-        
         st.session_state.no_of_participants = conn.query(sql_stmt_no_participanst, ttl=600).values.tolist()[0][0]
         # st.write(st.session_state.no_of_participants)
 
+        sql_stmt_no_early_bus = f"""SELECT count(*) as antal  from participants  where transport = 'Tidig buss';"""
+        st.session_state.no_earlys_bus = conn.query(sql_stmt_no_early_bus, ttl=600).values.tolist()[0][0]
         # Write directly to the app
         st.title("Anmälan till Skogsluffarnas Träningsläger i Orsa 2025")
-        st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
+
+        if st.session_state.no_earlys_bus >= 48:
+            st.write('OBS! Den tidiga bussen är fullsatt!')
+        else:
+            st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
+        
         if st.session_state.no_of_participants > 100:
             st.write('Det är begränsat med platser kvar. Vi gör allt för att alla ska komma med. Invänta besked ifall ni är placerade i kön.')
         st.write('OBS! Använd med fördel Chrome på dator.')
