@@ -50,7 +50,7 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
         st.title("Anmälan till Skogsluffarnas Träningsläger i Orsa 2025")
 
         if st.session_state.no_earlys_bus >= 48:
-            st.write('OBS! Den tidiga bussen är fullsatt!')
+            st.write('OBS! Den tidiga bussen är fullsatt! Platserna fördelas efter anmälningstidpunkt.')
         else:
             st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
         
@@ -61,7 +61,7 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
         st.write("Ange namn, adress, epost och telefon till ansvarig för anmälan *")
         resp_name = st.text_input("Namn *" )
         st.session_state.resp_name = resp_name
-        print(resp_name)
+        # print(resp_name)
         
         resp_adress = st.text_area("Fakturaadresss *")
         st.session_state.resp_adress = resp_adress
@@ -105,7 +105,14 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
         # __diet = st.text_input(f"Ange ev diet eller allergier", "")
         diet = st.multiselect("Ange ev diet eller allergier",["Vegetarian", "Vegan", "Gluten","Laktos", "Nötallergi","Kokosallergi","Mandelallergi","Tomatallergi", "Äter fisk"],)
         part_diet = [x for x in diet]
-        transport = st.selectbox(f"Önskad transport till Orsa *",("Tidig buss","Sen buss","Egen Bil"))
+
+        if st.session_state.no_earlys_bus >= 48:
+            st.write('OBS! Den tidiga bussen är fullsatt!')
+            transport = st.selectbox(f"Önskad transport till Orsa *",("Tidig buss","Sen buss","Egen Bil"))
+        else:
+            st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
+            transport = st.selectbox(f"Önskad transport till Orsa *",("Tidig buss","Sen buss","Egen Bil"))
+            
         part_telefon = st.text_input(f"Telefon (frivilligt)", "")
         part_mail = st.text_input(f"E-post (frivilligt)", "")
         skate = st.radio("Önskar att delta i träningsgrupp med fokus på Skate", ['Ja','Nej','Vet inte/Kanske'], horizontal=True,)
