@@ -49,10 +49,10 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
         # Write directly to the app
         st.title("Anmälan till Skogsluffarnas Träningsläger i Orsa 2025")
 
-        if st.session_state.no_earlys_bus >= 48:
-            st.write('OBS! Den tidiga bussen är fullsatt! Platserna fördelas efter anmälningstidpunkt.')
-        else:
-            st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
+        # if st.session_state.no_earlys_bus >= 48:
+        #     st.write('OBS! Den tidiga bussen är fullsatt! Platserna fördelas efter anmälningstidpunkt.')
+        # else:
+        # st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
         
         if st.session_state.no_of_participants > 100:
             st.write('Det är begränsat med platser kvar. Vi gör allt för att alla ska komma med. Invänta besked ifall ni är placerade i kön.')
@@ -106,12 +106,12 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
         diet = st.multiselect("Ange ev diet eller allergier",["Vegetarian", "Vegan", "Gluten","Laktos", "Nötallergi","Kokosallergi","Mandelallergi","Tomatallergi", "Äter fisk"],)
         part_diet = [x for x in diet]
 
-        if st.session_state.no_earlys_bus >= 48:
-            st.write('OBS! Den tidiga bussen är fullsatt!')
-            transport = st.selectbox(f"Önskad transport till Orsa *",("Tidig buss","Sen buss","Egen Bil"))
-        else:
-            st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
-            transport = st.selectbox(f"Önskad transport till Orsa *",("Tidig buss","Sen buss","Egen Bil"))
+        # if st.session_state.no_earlys_bus >= 48:
+        #     st.write('OBS! Den tidiga bussen är fullsatt!')
+        #     transport = st.selectbox(f"Önskad transport till Orsa *",("Tidig buss","Sen buss","Egen Bil"))
+        # else:
+        st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
+        transport = st.selectbox(f"Önskad transport till Orsa *",("Tidig buss","Sen buss","Egen Bil"))
             
         part_telefon = st.text_input(f"Telefon (frivilligt)", "")
         part_mail = st.text_input(f"E-post (frivilligt)", "")
