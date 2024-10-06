@@ -52,7 +52,7 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
         # if st.session_state.no_earlys_bus >= 48:
         #     st.write('OBS! Den tidiga bussen är fullsatt! Platserna fördelas efter anmälningstidpunkt.')
         # else:
-        # st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
+        st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
         
         if st.session_state.no_of_participants > 100:
             st.write('Det är begränsat med platser kvar. Vi gör allt för att alla ska komma med. Invänta besked ifall ni är placerade i kön.')
