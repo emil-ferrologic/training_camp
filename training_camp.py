@@ -10,6 +10,8 @@ conn = st.connection("snowflake")
 
 cursor = conn.raw_connection.cursor()
 
+
+
 def disable():
     st.session_state.disabled = True
 
@@ -30,9 +32,11 @@ if "state" not in st.session_state:
 if "load_datetime" not in st.session_state:
     st.session_state.load_datetime = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
+closing_date = st.secrets["variabler"]["closing_date"]
+
 st.image("https://www.skogsluffarna.se/skin/default/header/logotype.png?t=1722515192",width=120)
 
-if st.session_state.state == 'ongoing':
+if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.strptime(closing_date, '%Y-%m-%d').date():
 
     with st.form("update_report"):
 
@@ -143,3 +147,5 @@ elif st.session_state.state == "finished":
     st.write('Om någon saknas eller någon uppgift blivit fel, kontakta Emil Karlsson (k.emil.o.karlsson@gmail.com)')
     df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Ålder','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Skategrupp','Tränare', 'Tävlingar mm'])
     st.data_editor(df, disabled=['För-/Efternamn', 'Åldersgrupp','Ålder','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Skategrupp','Tränare', 'Tävlingar mm'], hide_index=True)
+elif datetime.now().date() > datetime.strptime(closing_date, '%Y-%m-%d').date():
+    st.title('Anmälan till Skogsluffarnas Träningsläger är stängd')
