@@ -54,11 +54,11 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
         else:
             st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
         
-        if st.session_state.no_of_participants = 98:
+        if st.session_state.no_of_participants == 98:
             st.write('Det är begränsat med platser kvar. Vi gör allt för att alla ska komma med. Invänta besked ifall ni är placerade i kön.')
         elif st.session_state.no_of_participants >= 100:
             st.write('Det finns tyvärr inga platser kvar. Gör en anmälan så blir ni placerade på väntelistan!')
-            
+
         st.write('Använd med fördel Chrome på dator.')
         st.write('Fält markerade med * är obligatoriska.')
         st.write("Ange namn, adress, epost och telefon till ansvarig för anmälan *")
