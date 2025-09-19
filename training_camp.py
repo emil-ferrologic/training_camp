@@ -3,8 +3,9 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 
+# secrets o credentials lokalt finns i mapp C:\Users\Emil Karlsson\.streamlit
 
-st.set_page_config(layout="wide", page_title='Anmälning till Orsa 2025', page_icon="https://www.skogsluffarna.se/skin/default/header/logotype.png?t=1722515192")
+st.set_page_config(layout="wide", page_title='Anmälning till Orsa 2026', page_icon="https://www.skogsluffarna.se/skin/default/header/logotype.png?t=1722515192")
 
 conn = st.connection("snowflake")
 
@@ -33,7 +34,9 @@ if "load_datetime" not in st.session_state:
     st.session_state.load_datetime = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 closing_date = st.secrets["variabler"]["closing_date"]
-
+#closing_date = '2025-10-10'
+print(st.session_state.state)
+print(closing_date)
 st.image("https://www.skogsluffarna.se/skin/default/header/logotype.png?t=1722515192",width=120)
 
 if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.strptime(closing_date, '%Y-%m-%d').date():
@@ -47,7 +50,7 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
         sql_stmt_no_early_bus = f"""SELECT count(*) as antal  from participants  where transport = 'Tidig buss';"""
         st.session_state.no_earlys_bus = conn.query(sql_stmt_no_early_bus, ttl=600).values.tolist()[0][0]
         # Write directly to the app
-        st.title("Anmälan till Skogsluffarnas Träningsläger i Orsa 2025")
+        st.title("Anmälan till Skogsluffarnas Träningsläger i Orsa 2026")
 
         if st.session_state.no_earlys_bus >= 48:
             st.write('OBS! Den tidiga bussen är fullsatt! Platserna fördelas efter anmälningstidpunkt.')
@@ -102,20 +105,24 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
         agegroup = st.radio(f"Ange åldersgrupp (ålder vid träningslägret) *", ["Till och med gymnasiet", "18-64 år", "65 år eller äldre"], horizontal=True,)
         if agegroup =="Till och med gymnasiet":
             age = st.text_input(f"Vänligen ange ålder för barnet/ungdomen", "")
+            part_ol_traingrp = st.selectbox(f"Ange vilken träningsgrupp i orienteringen du tillhör *",("Grupp 1","Grupp 2","Grupp 3"))
         else:
             age = None
+
+           
         # print(age)
         # __diet = st.text_input(f"Ange ev diet eller allergier", "")
         diet = st.multiselect("Ange ev diet eller allergier",["Vegetarian", "Vegan", "Gluten","Laktos", "Nötallergi","Kokosallergi","Mandelallergi","Tomatallergi", "Äter fisk"],)
         part_diet = [x for x in diet]
 
-        if st.session_state.no_earlys_bus >= 48:
+        if st.session_state.no_earlys_bus >= 46:
             st.write('OBS! Den tidiga bussen är fullsatt!')
             transport = st.selectbox(f"Önskad transport till Orsa *",("Tidig buss","Sen buss","Egen Bil"))
         else:
             st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
             transport = st.selectbox(f"Önskad transport till Orsa *",("Tidig buss","Sen buss","Egen Bil"))
-            
+
+                 
         part_telefon = st.text_input(f"Telefon (frivilligt)", "")
         part_mail = st.text_input(f"E-post (frivilligt)", "")
         skate = st.radio("Önskar att delta i träningsgrupp med fokus på Skate", ['Ja','Nej','Vet inte/Kanske'], horizontal=True,)
@@ -126,7 +133,7 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
         # st.write()
         part_bbq_comp = st.text_area('Kan tänka mig att hålla i eller hjälpa till vid aktiviteter som t.ex korvgrillning, lekar efter middag, kexchokladloppet, stugstafetten eller något annat. Skriv en kommentar nedan. (frivilligt)')
         if st.button("Lägg till"):
-            st.session_state.all_parts.append([part_name, agegroup,age, part_diet, transport, part_telefon, part_mail,skate, part_trainer,part_bbq_comp])
+            st.session_state.all_parts.append([part_name, agegroup,age,part_ol_traingrp, part_diet, transport, part_telefon, part_mail,skate, part_trainer,part_bbq_comp])
             # print(st.session_state.all_parts)
             st.rerun()
     if st.session_state.add_part == True:
@@ -137,10 +144,10 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
 
     if st.session_state.all_parts != []:
         st.write('Deltagare som ska följa med. För/Efternamn och Allegi/Diet går att ändra i tabellen.')
-        df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Ålder','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Skategrupp','Tränare', 'Tävlingar mm'])
+        df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Ålder','Träningsgrupp OL','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Skategrupp','Tränare', 'Tävlingar mm'])
         edited_df = st.data_editor(df, disabled=['Åldersgrupp','Transport','Skategrupp','Tränare'], hide_index=True)#
         df_insert = edited_df
-        df_insert.rename(columns={'För-/Efternamn':'PART_NAME', 'Åldersgrupp':'AGEGROUP', 'Ålder':'AGE','Allergi/Diet':'ALLERGI', 'Transport':'TRANSPORT', 'Telefon':'PHONE','E-post':'MAIL','Skategrupp':'SKATE','Tränare':'TRAINER','Tävlingar mm':'BBQ_COMP'},inplace=True)
+        df_insert.rename(columns={'För-/Efternamn':'PART_NAME', 'Åldersgrupp':'AGEGROUP', 'Ålder':'AGE','Träningsgrupp OL':'TRAINING_GROUP','Allergi/Diet':'ALLERGI', 'Transport':'TRANSPORT', 'Telefon':'PHONE','E-post':'MAIL','Skategrupp':'SKATE','Tränare':'TRAINER','Tävlingar mm':'BBQ_COMP'},inplace=True)
         df_insert.insert(0, 'SIGNUP_ID', st.session_state.signup_ID)
         df_insert.insert(5, 'LOAD_DATETIME', st.session_state.load_datetime)
         # print(df_insert)
@@ -162,7 +169,7 @@ elif st.session_state.state == "finished":
     st.write("---------------------------------------------")
     st.subheader('Anmälda deltagare')
     st.write('Om någon saknas eller någon uppgift blivit fel, kontakta Emil Karlsson (k.emil.o.karlsson@gmail.com)')
-    df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Ålder','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Skategrupp','Tränare', 'Tävlingar mm'])
-    st.data_editor(df, disabled=['För-/Efternamn', 'Åldersgrupp','Ålder','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Skategrupp','Tränare', 'Tävlingar mm'], hide_index=True)
+    df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Ålder','Träningsgrupp OL','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Skategrupp','Tränare', 'Tävlingar mm'])
+    st.data_editor(df, disabled=['För-/Efternamn', 'Åldersgrupp','Ålder','Träningsgrupp OL','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Skategrupp','Tränare', 'Tävlingar mm'], hide_index=True)
 elif datetime.now().date() > datetime.strptime(closing_date, '%Y-%m-%d').date():
     st.title('Anmälan till Skogsluffarnas Träningsläger är stängd')
