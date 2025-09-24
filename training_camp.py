@@ -58,11 +58,13 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
             st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
         else:
             pass
+        
+        que_limit = st.secrets["variabler"]["que_limit"]
+        full_limit = st.secrets["variabler"]["full_limit"]
 
-
-        if st.session_state.no_of_participants == 98:
+        if st.session_state.no_of_participants == que_limit:
             st.write('Det är begränsat med platser kvar. Vi gör allt för att alla ska komma med. Invänta besked ifall ni är placerade i kön.')
-        elif st.session_state.no_of_participants >= 100:
+        elif st.session_state.no_of_participants >= full_limit:
             st.subheader('Det finns tyvärr inga platser kvar. Gör en anmälan så blir ni placerade på väntelistan!')
 
         st.write('Använd med fördel Chrome på dator.')
