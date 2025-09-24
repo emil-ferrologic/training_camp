@@ -185,6 +185,9 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
             Ansvarig för anmälan {st.session_state.resp_name}
             Epost till ansvarig {st.session_state.resp_mail}
             Telefon till ansvarig {st.session_state.resp_telefon}
+            Adress {st.session_state.resp_adress}
+            Vill dela stuga med {st.session_state.sharing}
+            Övrig info {st.session_state.misc}
 
             Anmälda deltagare
             {msg}
