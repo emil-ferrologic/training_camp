@@ -1,4 +1,4 @@
-import streamlit as st
+# import streamlit as st
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -25,15 +25,15 @@ def send_email(sender_email, sender_password, receiver_email, subject, message):
         st.error(f"Error: {e}")
         return False
 
-# Streamlit UI
-st.title("📧 Send an Email")
+# # Streamlit UI
+# st.title("📧 Send an Email")
 
-sender_email = st.text_input("Sender Email")
-sender_password = st.text_input("Sender Email Password", type="password")
-receiver_email = st.text_input("Receiver Email")
-subject = st.text_input("Subject")
-message = st.text_area("Message")
+# sender_email = st.text_input("Sender Email")
+# sender_password = st.text_input("Sender Email Password", type="password")
+# receiver_email = st.text_input("Receiver Email")
+# subject = st.text_input("Subject")
+# message = st.text_area("Message")
 
-if st.button("Send Email"):
-    if send_email(sender_email, sender_password, receiver_email, subject, message):
-        st.success("Email sent successfully!")
+# if st.button("Send Email"):
+#     if send_email(sender_email, sender_password, receiver_email, subject, message):
+#         st.success("Email sent successfully!")
