@@ -2,6 +2,7 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
+from training_send_mail import send_email
 
 # secrets o credentials lokalt finns i mapp C:\Users\Emil Karlsson\.streamlit
 
@@ -10,8 +11,6 @@ st.set_page_config(layout="wide", page_title='Anmälning till Orsa 2026', page_i
 conn = st.connection("snowflake")
 
 cursor = conn.raw_connection.cursor()
-
-
 
 def disable():
     st.session_state.disabled = True
@@ -105,14 +104,15 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
         agegroup = st.radio(f"Ange åldersgrupp (ålder vid träningslägret) *", ["Till och med gymnasiet", "18-64 år", "65 år eller äldre"], horizontal=True,)
         if agegroup =="Till och med gymnasiet":
             age = st.text_input(f"Vänligen ange ålder för barnet/ungdomen", "")
-            part_ol_traingrp = st.selectbox(f"Ange vilken träningsgrupp i orienteringen du tillhör *",("Grupp 1","Grupp 2","Grupp 3"))
+            part_ol_traingrp = st.selectbox(f"Ange vilken träningsgrupp i orienteringen du tillhör *",("Rävar","Kaniner","Vit", "Gul", "Orange","Violett", "Vet Ej", "Deltar inte i någon träningsgrupp"))
         else:
             age = None
+            part_ol_traingrp = None
 
            
         # print(age)
         # __diet = st.text_input(f"Ange ev diet eller allergier", "")
-        diet = st.multiselect("Ange ev diet eller allergier",["Vegetarian", "Vegan", "Gluten","Laktos", "Nötallergi","Kokosallergi","Mandelallergi","Tomatallergi", "Äter fisk"],)
+        diet = st.multiselect("Ange ev diet eller allergier",["Vegetarian", "Vegan", "Gluten","Laktos", "Nötallergi","Kokosallergi","Mandelallergi","Tomatallergi", "Äter fisk"])
         part_diet = [x for x in diet]
 
         if st.session_state.no_earlys_bus >= 46:
@@ -145,6 +145,7 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
     if st.session_state.all_parts != []:
         st.write('Deltagare som ska följa med. För/Efternamn och Allegi/Diet går att ändra i tabellen.')
         df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Ålder','Träningsgrupp OL','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Skategrupp','Tränare', 'Tävlingar mm'])
+        
         edited_df = st.data_editor(df, disabled=['Åldersgrupp','Transport','Skategrupp','Tränare'], hide_index=True)#
         df_insert = edited_df
         df_insert.rename(columns={'För-/Efternamn':'PART_NAME', 'Åldersgrupp':'AGEGROUP', 'Ålder':'AGE','Träningsgrupp OL':'TRAINING_GROUP','Allergi/Diet':'ALLERGI', 'Transport':'TRANSPORT', 'Telefon':'PHONE','E-post':'MAIL','Skategrupp':'SKATE','Tränare':'TRAINER','Tävlingar mm':'BBQ_COMP'},inplace=True)
@@ -154,6 +155,43 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
         if st.button('Slutför anmälan'):
             conn.write_pandas(df_insert, table_name='PARTICIPANTS')
             st.session_state.state = "finished"
+
+            sender_email = st.secrets["send_mail"]["sender_email"] #"k.emil.o.karlsson@gmail.com"
+            sender_password = st.secrets["send_mail"]["sender_password"] #"seqj lpou mhcy brbp"
+            receiver_email = st.session_state.resp_mail #"emil@sharpedge.se"
+            subject = f"Bekräftelse på anmälan till Skogsluffarnas träningsläger ({st.session_state.signup_ID})"
+            for idx,item in enumerate(st.session_state.all_parts):
+                if idx == 0:
+                        msg = 'Amälnda deltagare \n--------------------------\n'
+                msg = f'''
+                {msg}Deltagare {idx+1}:\n
+                - För-/Efternamn: {str(item[0]).replace('[','').replace(']','')}
+                - Åldersgrupp: {str(item[1]).replace('[','').replace(']','')}
+                - Ålder: {str(item[2]).replace('[','').replace(']','')}
+                - Träningsgrupp OL: {str(item[3]).replace('[','').replace(']','')}
+                - Allergi/Diet: {str(item[4]).replace('[','').replace(']','')}
+                - Transport: {str(item[5]).replace('[','').replace(']','')}
+                - Telefon: {str(item[6]).replace('[','').replace(']','')}
+                - E-post: {str(item[7]).replace('[','').replace(']','')}
+                - Skategrupp: {str(item[8]).replace('[','').replace(']','')}
+                - Tränare: {str(item[9]).replace('[','').replace(']','')}
+                - Tävlingar mm: {str(item[10]).replace('[','').replace(']','')}
+                  --------------------------    
+                  '''
+            
+            
+            message = f"""Tack för anmälan
+            Bokningsnummer {st.session_state.signup_ID}
+            Ansvarig för anmälan {st.session_state.resp_name}
+            Epost till ansvarig {st.session_state.resp_mail}
+            Telefon till ansvarig {st.session_state.resp_telefon}
+
+            Anmälda deltagare
+            {msg}
+
+            Om någon saknas eller någon uppgift blivit fel, kontakta Orsa-gruppen på orsa@skogsluffarna.se. Om ni har fått ett bokningsnummer, skicka gärna med det.        
+            """
+            send_email(sender_email, sender_password, receiver_email, subject, message)
             st.rerun()
 elif st.session_state.state == "finished":
     st.subheader('Anmälan är mottagen, följande uppgifter har registrerats')
@@ -168,7 +206,7 @@ elif st.session_state.state == "finished":
     st.write(f'Övrig info {st.session_state.misc}')
     st.write("---------------------------------------------")
     st.subheader('Anmälda deltagare')
-    st.write('Om någon saknas eller någon uppgift blivit fel, kontakta Emil Karlsson (k.emil.o.karlsson@gmail.com)')
+    st.write('Saknas någon eller någon uppgift blivit fel, kontakta Orsa-gruppen på orsa@skogsluffarna.se Om ni har fått ett bokningsnummer, skicka gärna med det.')
     df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Ålder','Träningsgrupp OL','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Skategrupp','Tränare', 'Tävlingar mm'])
     st.data_editor(df, disabled=['För-/Efternamn', 'Åldersgrupp','Ålder','Träningsgrupp OL','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Skategrupp','Tränare', 'Tävlingar mm'], hide_index=True)
 elif datetime.now().date() > datetime.strptime(closing_date, '%Y-%m-%d').date():
