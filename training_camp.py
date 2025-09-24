@@ -42,20 +42,24 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
 
     with st.form("update_report"):
 
-        sql_stmt_no_participanst = f"""SELECT count(*) as antal  from participants;"""
+        sql_stmt_no_participanst = f"""SELECT count(*) as antal  from participants where load_datetime > '2025-10-01';"""
         st.session_state.no_of_participants = conn.query(sql_stmt_no_participanst, ttl=600).values.tolist()[0][0]
         # st.write(st.session_state.no_of_participants)
 
-        sql_stmt_no_early_bus = f"""SELECT count(*) as antal  from participants  where transport = 'Tidig buss';"""
+        sql_stmt_no_early_bus = f"""SELECT count(*) as antal  from participants  where load_datetime > '2025-10-01'  and transport = 'Tidig buss';"""
         st.session_state.no_earlys_bus = conn.query(sql_stmt_no_early_bus, ttl=600).values.tolist()[0][0]
+        print(st.session_state.no_earlys_bus)
         # Write directly to the app
         st.title("Anmälan till Skogsluffarnas Träningsläger i Orsa 2026")
 
         if st.session_state.no_earlys_bus >= 48:
             st.write('OBS! Den tidiga bussen är fullsatt! Platserna fördelas efter anmälningstidpunkt.')
-        else:
+        elif st.session_state.no_earlys_bus > 40:
             st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
-        
+        else:
+            pass
+
+
         if st.session_state.no_of_participants == 98:
             st.write('Det är begränsat med platser kvar. Vi gör allt för att alla ska komma med. Invänta besked ifall ni är placerade i kön.')
         elif st.session_state.no_of_participants >= 100:
@@ -192,7 +196,7 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
             Anmälda deltagare
             {msg}
 
-            Om någon saknas eller någon uppgift blivit fel, kontakta Orsa-gruppen på orsa@skogsluffarna.se. Om ni har fått ett bokningsnummer, skicka gärna med det.        
+            Saknas någon eller någon uppgift blivit fel, kontakta Orsa-gruppen på orsa@skogsluffarna.se. Om ni har fått ett bokningsnummer, skicka gärna med det.        
             """
             send_email(sender_email, sender_password, receiver_email, subject, message)
             st.rerun()
