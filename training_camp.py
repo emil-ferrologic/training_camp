@@ -42,11 +42,11 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
 
     with st.form("update_report"):
 
-        sql_stmt_no_participanst = f"""SELECT count(*) as antal  from participants where load_datetime > '2025-10-01';"""
+        sql_stmt_no_participanst = f"""SELECT count(*) as antal  from participants where active != 'old';"""
         st.session_state.no_of_participants = conn.query(sql_stmt_no_participanst, ttl=600).values.tolist()[0][0]
         # st.write(st.session_state.no_of_participants)
 
-        sql_stmt_no_early_bus = f"""SELECT count(*) as antal  from participants  where load_datetime > '2025-10-01'  and transport = 'Tidig buss';"""
+        sql_stmt_no_early_bus = f"""SELECT count(*) as antal  from participants  where active != 'old'  and transport = 'Tidig buss';"""
         st.session_state.no_earlys_bus = conn.query(sql_stmt_no_early_bus, ttl=600).values.tolist()[0][0]
         print(st.session_state.no_earlys_bus)
         # Write directly to the app
@@ -58,14 +58,38 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
             st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
         else:
             pass
-        
+
         que_limit = st.secrets["variabler"]["que_limit"]
         full_limit = st.secrets["variabler"]["full_limit"]
+        # test_limit = st.secrets["variabler"]["test_limit"]
+        # test_que = st.secrets["variabler"]["test_que"]
 
-        if st.session_state.no_of_participants == que_limit:
-            st.write('Det är begränsat med platser kvar. Vi gör allt för att alla ska komma med. Invänta besked ifall ni är placerade i kön.')
-        elif st.session_state.no_of_participants >= full_limit:
-            st.subheader('Det finns tyvärr inga platser kvar. Gör en anmälan så blir ni placerade på väntelistan!')
+        if st.secrets["variabler"]["test_limit"] == 'TEST':
+            st.session_state.que_noque = st.secrets["variabler"]["test_que"]
+            print('____'+ st.session_state.que_noque)
+            if st.session_state.que_noque == 'NOQUE':
+                print('pass')
+            elif st.session_state.que_noque == 'QUE_1': 
+                
+                print('TEST')   
+                st.write('Det är begränsat med platser kvar, gör er anmälan men invänta besked om ni är på väntelista eller ej. Vi gör allt för att alla ska komma med.')
+            elif st.session_state.que_noque == 'QUE_2':    
+                st.subheader('Alla platser är tyvärr bokade. Gör en anmälan så blir ni placerade på väntelistan!')
+            
+            
+        else:
+            if st.session_state.no_of_participants in range(que_limit, full_limit-1):
+                st.write('Det är begränsat med platser kvar, gör er anmälan men invänta besked om ni är på väntelista eller ej. Vi gör allt för att alla ska komma med.')
+                st.session_state.que_noque = 'QUE_1'
+            elif st.session_state.no_of_participants >= full_limit:
+                st.subheader('Alla platser är tyvärr bokade. Gör en anmälan så blir ni placerade på väntelistan!')
+                st.session_state.que_noque = 'QUE_2'
+            else:
+                st.session_state.que_noque = 'NOQUE'
+
+       
+        #Används för att kunna testa bl.a köhantering
+        
 
         st.write('Använd med fördel Chrome på dator.')
         st.write('Fält markerade med * är obligatoriska.')
@@ -92,8 +116,8 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
 
         if sub_comment:
             sql_insert  = f"""insert into signup  
-                    (resp_name, resp_adress, resp_mail, resp_telefon, sharing,  misc, load_datetime) 
-                    values ('{resp_name}','{resp_adress}', '{resp_mail}', '{resp_telefon}', '{sharing}', '{misc}', '{st.session_state.load_datetime}')""" 
+                    (resp_name, resp_adress, resp_mail, resp_telefon, sharing,  misc, load_datetime, waitinglist) 
+                    values ('{resp_name}','{resp_adress}', '{resp_mail}', '{resp_telefon}', '{sharing}', '{misc}', '{st.session_state.load_datetime}','{st.session_state.que_noque}')""" 
             cursor.execute(sql_insert)
             sql_stmt = f"""SELECT max(signup_ID) as signup_ID  from signup where 
                 resp_name = '{resp_name}' and 
@@ -149,7 +173,7 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
             vote(st.session_state.signup_ID)
 
     if st.session_state.all_parts != []:
-        st.write('Deltagare som ska följa med. För/Efternamn och Allegi/Diet går att ändra i tabellen.')
+        st.write('Deltagare som ska följa med. För/Efternamn, Ålder, Träningsgrupp OL, Telefon, E-post och Tävlingar mm går att ändra i tabellen.')
         df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Ålder','Träningsgrupp OL','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Skategrupp','Tränare', 'Tävlingar mm'])
         
         edited_df = st.data_editor(df, disabled=['Åldersgrupp','Transport','Skategrupp','Tränare'], hide_index=True)#
@@ -165,10 +189,17 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
             sender_email = st.secrets["send_mail"]["sender_email"] #"k.emil.o.karlsson@gmail.com"
             sender_password = st.secrets["send_mail"]["sender_password"] #"seqj lpou mhcy brbp"
             receiver_email = st.session_state.resp_mail #"emil@sharpedge.se"
-            subject = f"Bekräftelse på anmälan till Skogsluffarnas träningsläger ({st.session_state.signup_ID})"
+            if st.session_state.que_noque == 'NOQUE':
+                waitlist = ''
+            else:
+                waitlist = ' - VÄNTELISTA!'
+            subject = f"Bekräftelse på anmälan till Skogsluffarnas träningsläger ({st.session_state.signup_ID}){waitlist}"
+            msg = ''
             for idx,item in enumerate(st.session_state.all_parts):
                 if idx == 0:
-                        msg = 'Amälnda deltagare \n--------------------------\n'
+                    if st.session_state.que_noque in ('QUE_1', 'QUE_2'):
+                        msg = 'OBS! Ni är placerade på väntelista. Invänta besked från Orsa-gruppen\n\n'
+                    msg = f'{msg}Anmälda deltagare \n--------------------------\n'
                 msg = f'''
                 {msg}Deltagare {idx+1}:\n
                 - För-/Efternamn: {str(item[0]).replace('[','').replace(']','')}
@@ -194,8 +225,7 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
             Adress {st.session_state.resp_adress}
             Vill dela stuga med {st.session_state.sharing}
             Övrig info {st.session_state.misc}
-
-            Anmälda deltagare
+            
             {msg}
 
             Saknas någon eller någon uppgift blivit fel, kontakta Orsa-gruppen på orsa@skogsluffarna.se. Om ni har fått ett bokningsnummer, skicka gärna med det.        
@@ -203,7 +233,10 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
             send_email(sender_email, sender_password, receiver_email, subject, message)
             st.rerun()
 elif st.session_state.state == "finished":
-    st.subheader('Anmälan är mottagen, följande uppgifter har registrerats')
+    if st.session_state.que_noque == 'NOQUE':
+        st.subheader('Anmälan är mottagen, följande uppgifter har registrerats')
+    else:
+        st.subheader('Anmälan är mottagen, följande uppgifter har registrerats. OBS! Ni är placerade på väntelista!')
     st.write(f'Ansvarig för anmälan')
     st.write(f'   - {st.session_state.resp_name}')
     st.subheader(f'Kontaktuppgifter till ansvarig för anmälan')

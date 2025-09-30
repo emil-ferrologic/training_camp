@@ -22,7 +22,7 @@ def send_email(sender_email, sender_password, receiver_email, subject, message):
         server.quit()
         return True
     except Exception as e:
-        st.error(f"Error: {e}")
+        # st.error(f"Error: {e}")
         return False
 
 # # Streamlit UI
