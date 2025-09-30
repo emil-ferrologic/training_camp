@@ -173,7 +173,7 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
             vote(st.session_state.signup_ID)
 
     if st.session_state.all_parts != []:
-        st.write('Deltagare som ska följa med. För/Efternamn, Ålder, Träningsgrupp OL, Telefon, E-post och Tävlingar mm går att ändra i tabellen.')
+        st.write('Deltagare som ska följa med. För/Efternamn, Ålder, Träningsgrupp OL, Allergi/Diet, Telefon, E-post och Tävlingar mm går att ändra i tabellen.')
         df = pd.DataFrame(st.session_state.all_parts, columns=['För-/Efternamn', 'Åldersgrupp','Ålder','Träningsgrupp OL','Allergi/Diet', 'Transport', 'Telefon', 'E-post', 'Skategrupp','Tränare', 'Tävlingar mm'])
         
         edited_df = st.data_editor(df, disabled=['Åldersgrupp','Transport','Skategrupp','Tränare'], hide_index=True)#
