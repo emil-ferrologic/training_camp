@@ -167,7 +167,8 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
             # print(st.session_state.all_parts)
             st.rerun()
     if st.session_state.add_part == True:
-        st.write('Även den som som står som ansvarig, behöver registreras som deltagare!')
+        # st.write('OBS! Även den som som står som ansvarig, behöver registreras som deltagare!')
+        st.markdown('### **OBS! Även den som som står som ansvarig, behöver registreras som deltagare!**')
         st.write('Registrera alla i sällskapet som ska följa med på träningslägret.')
         if st.button('Lägg till deltagare'):
             vote(st.session_state.signup_ID)
