@@ -54,7 +54,7 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
 
         if st.session_state.no_earlys_bus >= 48:
             st.write('OBS! Den tidiga bussen är fullsatt! Platserna fördelas efter anmälningstidpunkt.')
-        elif st.session_state.no_earlys_bus > 40:
+        elif st.session_state.no_earlys_bus > 40 and st.session_state.no_earlys_bus < 48:
             st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
         else:
             pass
@@ -145,11 +145,13 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
         diet = st.multiselect("Ange ev diet eller allergier",["Vegetarian", "Vegan", "Gluten","Laktos", "Nötallergi","Kokosallergi","Mandelallergi","Tomatallergi", "Äter fisk"])
         part_diet = [x for x in diet]
 
-        if st.session_state.no_earlys_bus >= 46:
+        if st.session_state.no_earlys_bus >= 48:
             st.write('OBS! Den tidiga bussen är fullsatt!')
             transport = st.selectbox(f"Önskad transport till Orsa *",("Tidig buss","Sen buss","Egen Bil"))
-        else:
+        elif st.session_state.no_earlys_bus > 40 and st.session_state.no_earlys_bus < 48:
             st.write('OBS! Nu är det bara ett fåtal platser kvar på den tidiga bussen!')
+            transport = st.selectbox(f"Önskad transport till Orsa *",("Tidig buss","Sen buss","Egen Bil"))
+        else:
             transport = st.selectbox(f"Önskad transport till Orsa *",("Tidig buss","Sen buss","Egen Bil"))
 
                  
