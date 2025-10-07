@@ -134,7 +134,7 @@ if st.session_state.state == 'ongoing' and datetime.now().date() <= datetime.str
         agegroup = st.radio(f"Ange åldersgrupp (ålder vid träningslägret) *", ["Till och med gymnasiet", "18-64 år", "65 år eller äldre"], horizontal=True,)
         if agegroup =="Till och med gymnasiet":
             age = st.text_input(f"Vänligen ange ålder för barnet/ungdomen, som siffra t.ex. 17", "")
-            part_ol_traingrp = st.selectbox(f"Ange vilken träningsgrupp i orienteringen du tillhör *",("--Välj grupp--","Rävar","Kaniner","Vit", "Gul", "Orange","Violett", "Vet Ej", "Deltar inte i någon träningsgrupp"))
+            part_ol_traingrp = st.selectbox(f"Ange vilken träningsgrupp i orienteringen du tillhör *",("Rävar","Kaniner","Vit", "Gul", "Orange","Violett", "Vet Ej", "Deltar inte i någon träningsgrupp"))
         else:
             age = None
             part_ol_traingrp = None
