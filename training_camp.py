@@ -22,7 +22,7 @@ if "part" not in st.session_state:
 if "all_parts" not in st.session_state:
     st.session_state.all_parts = []
 if "rc" not in st.session_state:
-        st.session_state.rc = 0
+    st.session_state.rc = 0
 if "add_part" not in st.session_state:
     st.session_state.add_part = False
 if "disabled" not in st.session_state:
